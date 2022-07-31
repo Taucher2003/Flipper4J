@@ -1,0 +1,247 @@
+stages:
+  - sync
+  - build
+  - test
+  - security
+  - deploy
+
+include:
+  - local: .gitlab/vars/dependency-proxy.yml
+    rules:
+      - if: $T_ENABLE_DEPENDENCY_PROXY
+  - template: Security/SAST.gitlab-ci.yml
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  - template: Security/License-Scanning.gitlab-ci.yml
+  - template: Security/Secret-Detection.gitlab-ci.yml
+  - template: Code-Quality.gitlab-ci.yml
+
+variables:
+  T_MAVEN_IMAGE: ${PROXY_PREFIX}maven:3.8.4-openjdk-11
+  T_MAVEN_CLI_OPTS: -Dmaven.repo.local=.m2
+  SAST_EXCLUDED_ANALYZERS: "bandit,brakeman,eslint,flawfinder,kubesec,gosec,mobsf,nodejs-scan,phpcs-security-audit,pmd-apex,security-code-scan,sobelow,spotbugs"
+
+default:
+  image: $T_MAVEN_IMAGE
+  interruptible: true
+  cache:
+    when: on_success
+    paths:
+      - '**/target'
+      - '.m2'
+
+.default-rules:
+  rules: &workflow-rules
+    - if: $CI_MERGE_REQUEST_ID
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $T_FORCE_PIPELINE
+
+workflow:
+  rules: *workflow-rules
+
+no-interrupt:
+  stage: sync
+  interruptible: false
+  image: ${PROXY_PREFIX}alpine:edge
+  script:
+    - echo "This jobs makes sure this pipeline won't be interrupted! See https://docs.gitlab.com/ee/ci/yaml/#interruptible."
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $CI_COMMIT_TAG
+    - when: manual
+      allow_failure: true
+
+build:
+  stage: build
+  script:
+    - mvn compile javadoc:javadoc $T_MAVEN_CLI_OPTS
+
+test:
+  stage: test
+  script:
+    - mvn test jacoco:report jacoco:report-aggregate $T_MAVEN_CLI_OPTS
+    - mv coverage/target/site/jacoco-aggregate coverage-report
+    - awk -F"," '{ total+=$4+$5; covered+=$5 } END { print "Jacoco instructions covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
+    - awk -F"," '{ total+=$6+$7; covered+=$7 } END { print "Jacoco branches covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
+    - awk -F"," '{ total+=$8+$9; covered+=$9 } END { print "Jacoco lines covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
+  coverage: /Jacoco instructions covered (\d+\.?\d*) %/
+  artifacts:
+    when: always
+    reports:
+      junit:
+        - '**/target/surefire-reports/TEST-*.xml'
+    paths:
+      - 'coverage-report'
+
+.deploy:
+  stage: deploy
+  resource_group: deploy-maven
+  needs:
+    - build
+    - test
+  script:
+    - mvn deploy $T_MAVEN_CLI_OPTS $T_DEPLOY_MAVEN_CLI_OPTS -Ddeploy.username=$T_USERNAME -Ddeploy.password=$T_PASSWORD -Dgpg.passphrase=$T_GPG_PASSPHRASE -P ci${T_MAVEN_PROFILES} -s .gitlab/settings/$T_CONFIG.xml
+
+deploy-sonatype:
+  extends:
+    - .deploy
+  environment:
+    name: sonatype
+    action: start
+  before_script:
+    - gpg --pinentry-mode loopback --passphrase $T_GPG_PASSPHRASE --import $T_GPG_KEY
+  variables:
+    T_USERNAME: $T_SONATYPE_USERNAME
+    T_PASSWORD: $T_SONATYPE_PASSWORD
+    T_CONFIG: "sonatype"
+    T_VERSION: $CI_COMMIT_TAG
+    T_DEPLOY_MAVEN_CLI_OPTS: "-Dflipper4j.version=${T_VERSION}"
+  rules:
+    - if: $CI_PROJECT_ID != "38232779"
+      when: never
+    - if: $CI_COMMIT_TAG
+    - if: $T_FORCE_SONATYPE_DEPLOYMENT
+
+deploy-gitlab:
+  extends:
+    - .deploy
+  environment:
+    name: gitlab
+    action: start
+  variables:
+    T_USERNAME: "Job-Token"
+    T_PASSWORD: $CI_JOB_TOKEN
+    T_CONFIG: "gitlab"
+    T_DEPLOY_MAVEN_CLI_OPTS: "-Dflipper4j.version-suffix=-SNAPSHOT"
+    T_MAVEN_PROFILES: ",no-sign"
+  rules:
+    - if: $CI_PROJECT_ID != "38232779"
+      when: never
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $T_FORCE_GITLAB_DEPLOYMENT
+
+deploy-gitlab-custom:
+  extends:
+    - .deploy
+  environment:
+    name: gitlab-custom
+    action: start
+  variables:
+    T_USERNAME: "Job-Token"
+    T_PASSWORD: $CI_JOB_TOKEN
+    T_CONFIG: "gitlab"
+    T_DEPLOY_MAVEN_CLI_OPTS: "-Dflipper4j.version=${CI_COMMIT_REF_NAME}-SNAPSHOT"
+    T_MAVEN_PROFILES: ",no-sign"
+  rules:
+    - if: $CI_PROJECT_ID != "38232779"
+      when: never
+    - if: $CI_COMMIT_TAG
+      when: never
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      when: never
+    - when: manual
+      allow_failure: true
+
+.javadoc-rules:
+  rules:
+    - if: $CI_PROJECT_ID != "38232779"
+      when: never
+    - if: $CI_COMMIT_TAG
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+    - if: $T_FORCE_JAVADOC_DEPLOYMENT
+
+build-javadoc:
+  extends:
+    - .javadoc-rules
+  stage: build
+  script:
+    - ./.gitlab/scripts/build-javadocs.sh $CI_PROJECT_URL
+  artifacts:
+    paths:
+      - javadoc
+    expire_in: 1 day
+
+pages:
+  extends:
+    - .javadoc-rules
+  stage: deploy
+  environment:
+    name: gitlab-javadoc
+    action: start
+    url: https://taucher2003-group.gitlab.io/flipper4j
+  resource_group: deploy-javadoc
+  needs:
+    - build-javadoc
+    - test
+  script:
+    - mkdir public
+    - cp .gitlab/template/index.html public/index.html
+    - mv javadoc public/javadoc
+    - mv coverage-report public/coverage
+  artifacts:
+    paths:
+      - public
+    expire_in: 1 day
+
+# Template Job Configurations
+# -------------------------------------------------------
+
+.sast-analyzer:
+  stage: security
+  needs: [ ]
+
+semgrep-sast:
+  cache: { }
+  variables:
+    SAST_SEMGREP_METRICS: "false"
+  rules:
+    - if: $SAST_DISABLED
+      when: never
+    - !reference [ .default-rules, rules ]
+
+.ds-analyzer:
+  stage: security
+  needs: [ ]
+
+gemnasium-maven-dependency_scanning:
+  variables:
+    DS_JAVA_VERSION: "11"
+    MAVEN_CLI_OPTS: "-P no-sign,no-javadoc -DskipTests $T_MAVEN_CLI_OPTS"
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED
+      when: never
+    - !reference [ .default-rules, rules ]
+
+license_scanning:
+  stage: security
+  needs: [ ]
+  variables:
+    LM_JAVA_VERSION: "11"
+  rules:
+    - if: $LICENSE_MANAGEMENT_DISABLED
+      when: never
+    - !reference [ .default-rules, rules ]
+
+.secret-analyzer:
+  stage: security
+  needs: [ ]
+
+secret_detection:
+  cache: { }
+  rules:
+    - if: $SECRET_DETECTION_DISABLED
+      when: never
+    - !reference [ .default-rules, rules ]
+
+code_quality:
+  cache: { }
+  stage: security
+  image: ${PROXY_PREFIX}docker:19.03.12
+  services:
+    - name: ${PROXY_PREFIX}docker:19.03.12-dind
+      alias: docker
+  rules:
+    - if: $CODE_QUALITY_DISABLED
+      when: never
+    - !reference [ .default-rules, rules ]
