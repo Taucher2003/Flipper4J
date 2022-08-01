@@ -237,6 +237,13 @@ semgrep-sast:
       when: never
     - !reference [ .default-rules, rules ]
 
+brakeman-sast:
+  cache: { }
+  rules:
+    - if: $SAST_DISABLED
+      when: never
+    - !reference [ .default-rules, rules ]
+
 .ds-analyzer:
   stage: security
   needs: [ ]
