@@ -18,7 +18,7 @@ include:
 variables:
   T_MAVEN_IMAGE: ${PROXY_PREFIX}maven:3.8.4-openjdk-11
   T_MAVEN_CLI_OPTS: -Dmaven.repo.local=.m2
-  SAST_EXCLUDED_ANALYZERS: "bandit,brakeman,eslint,flawfinder,kubesec,gosec,mobsf,nodejs-scan,phpcs-security-audit,pmd-apex,security-code-scan,sobelow,spotbugs"
+  SAST_EXCLUDED_ANALYZERS: "bandit,eslint,flawfinder,kubesec,gosec,mobsf,nodejs-scan,phpcs-security-audit,pmd-apex,security-code-scan,sobelow,spotbugs"
 
 default:
   image: $T_MAVEN_IMAGE
@@ -240,6 +240,12 @@ semgrep-sast:
 .ds-analyzer:
   stage: security
   needs: [ ]
+
+gemnasium-dependency_scanning:
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED
+      when: never
+    - !reference [ .default-rules, rules ]
 
 gemnasium-maven-dependency_scanning:
   variables:
