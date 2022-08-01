@@ -261,6 +261,7 @@ license_scanning:
   needs: [ ]
   variables:
     LM_JAVA_VERSION: "11"
+    LICENSE_FINDER_CLI_OPTS: '--recursive'
   rules:
     - if: $LICENSE_MANAGEMENT_DISABLED
       when: never
