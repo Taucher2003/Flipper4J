@@ -18,7 +18,7 @@ include:
 variables:
   T_MAVEN_IMAGE: ${PROXY_PREFIX}maven:3.8.4-openjdk-11
   T_MAVEN_CLI_OPTS: -Dmaven.repo.local=.m2
-  SAST_EXCLUDED_ANALYZERS: "bandit,brakeman,eslint,flawfinder,kubesec,gosec,mobsf,nodejs-scan,phpcs-security-audit,pmd-apex,security-code-scan,sobelow,spotbugs"
+  SAST_EXCLUDED_ANALYZERS: "bandit,eslint,flawfinder,kubesec,gosec,mobsf,nodejs-scan,phpcs-security-audit,pmd-apex,security-code-scan,sobelow,spotbugs"
 
 default:
   image: $T_MAVEN_IMAGE
@@ -59,11 +59,14 @@ build:
 test:
   stage: test
   script:
+    - echo "Test will use image with tag ${T_TEST_IMAGE_TAG}"
     - mvn test jacoco:report jacoco:report-aggregate $T_MAVEN_CLI_OPTS
     - mv coverage/target/site/jacoco-aggregate coverage-report
     - awk -F"," '{ total+=$4+$5; covered+=$5 } END { print "Jacoco instructions covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
     - awk -F"," '{ total+=$6+$7; covered+=$7 } END { print "Jacoco branches covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
     - awk -F"," '{ total+=$8+$9; covered+=$9 } END { print "Jacoco lines covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
+  variables:
+    T_TEST_IMAGE_TAG: "latest"
   coverage: /Jacoco instructions covered (\d+\.?\d*) %/
   artifacts:
     when: always
@@ -184,6 +187,40 @@ pages:
       - public
     expire_in: 1 day
 
+# Test API Image
+# -------------------------------------------------------
+
+build-test-image:
+  stage: build
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [ "" ]
+  cache: {}
+  script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}/test-backend"
+      --dockerfile "${CI_PROJECT_DIR}/test-backend/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/test-backend:${T_TEST_IMAGE_TAG}"
+    - echo "T_TEST_IMAGE_TAG=${T_TEST_IMAGE_TAG}" > dotenv
+  artifacts:
+    reports:
+      dotenv:
+        - dotenv
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - test-backend/*
+      variables:
+        T_TEST_IMAGE_TAG: $CI_COMMIT_SHA
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - test-backend/*
+      variables:
+        T_TEST_IMAGE_TAG: latest
+
 # Template Job Configurations
 # -------------------------------------------------------
 
@@ -204,6 +241,12 @@ semgrep-sast:
   stage: security
   needs: [ ]
 
+gemnasium-dependency_scanning:
+  rules:
+    - if: $DEPENDENCY_SCANNING_DISABLED
+      when: never
+    - !reference [ .default-rules, rules ]
+
 gemnasium-maven-dependency_scanning:
   variables:
     DS_JAVA_VERSION: "11"
@@ -218,6 +261,7 @@ license_scanning:
   needs: [ ]
   variables:
     LM_JAVA_VERSION: "11"
+    LICENSE_FINDER_CLI_OPTS: '--recursive'
   rules:
     - if: $LICENSE_MANAGEMENT_DISABLED
       when: never
