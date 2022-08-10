@@ -22,4 +22,12 @@ public class FeatureGate {
         this.key = key;
         this.name = name;
     }
+
+    public FeatureGateType getKey() {
+        return key;
+    }
+
+    public String getName() {
+        return name;
+    }
 }

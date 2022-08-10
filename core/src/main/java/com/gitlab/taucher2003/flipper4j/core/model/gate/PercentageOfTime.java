@@ -13,4 +13,8 @@ public class PercentageOfTime extends FeatureGate {
         super(key, name);
         this.value = value;
     }
+
+    public String getValue() {
+        return value;
+    }
 }

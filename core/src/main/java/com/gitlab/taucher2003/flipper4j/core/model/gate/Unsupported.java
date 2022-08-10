@@ -13,4 +13,8 @@ public class Unsupported extends FeatureGate {
         super(key, name);
         this.value = value;
     }
+
+    public Object getValue() {
+        return value;
+    }
 }

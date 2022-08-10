@@ -13,4 +13,8 @@ public class Boolean extends FeatureGate {
         super(key, name);
         this.value = value;
     }
+
+    public java.lang.Boolean getValue() {
+        return value;
+    }
 }

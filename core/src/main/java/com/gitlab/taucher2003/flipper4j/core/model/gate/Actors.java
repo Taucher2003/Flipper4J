@@ -15,4 +15,8 @@ public class Actors extends FeatureGate {
         super(key, name);
         this.value = value;
     }
+
+    public List<String> getValue() {
+        return value;
+    }
 }

@@ -44,6 +44,7 @@ public class Reader {
                 LOGGER.error("Unexpected IOException while retrieving features", e);
             } catch (InterruptedException e) {
                 LOGGER.error("Retrieving Thread has been interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }, 0, time, unit);
     }
