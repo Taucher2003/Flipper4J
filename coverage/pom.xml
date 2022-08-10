@@ -15,6 +15,14 @@
     <name>Flipper4J › Coverage</name>
     <description>Coverage aggregator for Flipper4J</description>
 
+    <dependencies>
+        <dependency>
+            <groupId>com.gitlab.taucher2003.flipper4j</groupId>
+            <artifactId>core</artifactId>
+            <version>${flipper4j.version}</version>
+        </dependency>
+    </dependencies>
+
     <build>
         <plugins>
             <plugin>
