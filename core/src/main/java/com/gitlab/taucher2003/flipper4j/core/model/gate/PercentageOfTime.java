@@ -6,6 +6,8 @@ import com.gitlab.taucher2003.flipper4j.core.model.EvaluationContext;
 import com.gitlab.taucher2003.flipper4j.core.model.FeatureGate;
 import com.gitlab.taucher2003.flipper4j.core.model.FeatureGateType;
 
+import java.util.concurrent.ThreadLocalRandom;
+
 public class PercentageOfTime extends FeatureGate {
     private final double value;
 
@@ -21,6 +23,6 @@ public class PercentageOfTime extends FeatureGate {
 
     @Override
     public boolean isEnabled(EvaluationContext context) {
-        return System.currentTimeMillis() % 100 <= value;
+        return ThreadLocalRandom.current().nextInt(100) >= value;
     }
 }
