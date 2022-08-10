@@ -249,12 +249,14 @@ brakeman-sast:
   needs: [ ]
 
 gemnasium-dependency_scanning:
+  cache: { }
   rules:
     - if: $DEPENDENCY_SCANNING_DISABLED
       when: never
     - !reference [ .default-rules, rules ]
 
 gemnasium-maven-dependency_scanning:
+  cache: { }
   variables:
     DS_JAVA_VERSION: "11"
     MAVEN_CLI_OPTS: "-P no-sign,no-javadoc -DskipTests $T_MAVEN_CLI_OPTS"
@@ -266,6 +268,7 @@ gemnasium-maven-dependency_scanning:
 license_scanning:
   stage: security
   needs: [ ]
+  cache: { }
   variables:
     LM_JAVA_VERSION: "11"
     LICENSE_FINDER_CLI_OPTS: '--recursive'
