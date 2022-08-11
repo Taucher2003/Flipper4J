@@ -12,6 +12,9 @@ public class EvaluationContext implements FlipperIdentifier {
 
     @Override
     public String flipperId() {
+        if(identifier == null) {
+            return null;
+        }
         return identifier.flipperId();
     }
 

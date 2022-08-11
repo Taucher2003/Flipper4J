@@ -21,6 +21,10 @@ public class PercentageOfActors extends FeatureGate {
 
     @Override
     public boolean isEnabled(EvaluationContext context) {
-        return (context.flipperId() + context.getFeatureName()).hashCode() % 100 <= value;
+        var id = context.flipperId();
+        if(id == null) {
+            return value == 100;
+        }
+        return (id + context.getFeatureName()).hashCode() % 100 <= value;
     }
 }

@@ -23,6 +23,10 @@ public class Actors extends FeatureGate {
 
     @Override
     public boolean isEnabled(EvaluationContext context) {
-        return value.contains(context.flipperId());
+        var id = context.flipperId();
+        if(id == null) {
+            return false;
+        }
+        return value.contains(id);
     }
 }

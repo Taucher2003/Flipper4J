@@ -25,6 +25,10 @@ public final class Flipper {
         }
     }
 
+    public boolean isEnabled(String feature) {
+        return isEnabled(feature, null);
+    }
+
     public boolean isEnabled(String feature, FlipperIdentifier identifier) {
         return registry.getFeature(feature).map(f -> f.isEnabled(identifier)).orElse(false);
     }
