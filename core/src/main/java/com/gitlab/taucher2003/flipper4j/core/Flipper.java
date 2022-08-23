@@ -3,8 +3,9 @@ package com.gitlab.taucher2003.flipper4j.core;
 import com.gitlab.taucher2003.flipper4j.core.config.FlipperConfiguration;
 import com.gitlab.taucher2003.flipper4j.core.config.FlipperConfigurator;
 import com.gitlab.taucher2003.flipper4j.core.http.Reader;
+import com.gitlab.taucher2003.flipper4j.core.model.FlipperIdentifier;
 
-public class Flipper {
+public final class Flipper {
 
     private final Reader reader;
     private final FeatureRegistry registry;
@@ -22,6 +23,14 @@ public class Flipper {
         while(!registry.isReady()) {
             Thread.onSpinWait();
         }
+    }
+
+    public boolean isEnabled(String feature) {
+        return isEnabled(feature, null);
+    }
+
+    public boolean isEnabled(String feature, FlipperIdentifier identifier) {
+        return registry.getFeature(feature).map(f -> f.isEnabled(identifier)).orElse(false);
     }
 
     public static Flipper create(FlipperConfiguration configuration) {

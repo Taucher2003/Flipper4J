@@ -28,4 +28,14 @@ public class Feature {
     public List<FeatureGate> getGates() {
         return gates;
     }
+
+    public boolean isEnabled(FlipperIdentifier identifier) {
+        var context = new EvaluationContext(identifier, key);
+        for (var gate : gates) {
+            if(gate.isEnabled(context)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
