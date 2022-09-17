@@ -36,17 +36,19 @@ public class Reader {
 
     public void schedule(long time, TimeUnit unit) {
         cancel();
-        scheduledFuture = EXECUTOR_SERVICE.scheduleAtFixedRate(() -> {
-            try {
-                var features = retrieveFeatures();
-                registry.setFeatures(features);
-            } catch (IOException e) {
-                LOGGER.error("Unexpected IOException while retrieving features", e);
-            } catch (InterruptedException e) {
-                LOGGER.error("Retrieving Thread has been interrupted", e);
-                Thread.currentThread().interrupt();
-            }
-        }, 0, time, unit);
+        scheduledFuture = EXECUTOR_SERVICE.scheduleAtFixedRate(this::updateLocalState, 0, time, unit);
+    }
+
+    void updateLocalState() {
+        try {
+            var features = retrieveFeatures();
+            registry.setFeatures(features);
+        } catch (IOException e) {
+            LOGGER.error("Unexpected IOException while retrieving features", e);
+        } catch (InterruptedException e) {
+            LOGGER.error("Retrieving Thread has been interrupted", e);
+            Thread.currentThread().interrupt();
+        }
     }
 
     public void cancel() {
