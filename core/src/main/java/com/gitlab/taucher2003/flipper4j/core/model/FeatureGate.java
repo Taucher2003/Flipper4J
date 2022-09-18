@@ -15,16 +15,10 @@ import com.gitlab.taucher2003.flipper4j.core.model.gate.Unsupported;
         @JsonSubTypes.Type(value = PercentageOfTime.class, name = "percentage_of_time")
 })
 public abstract class FeatureGate {
-    private final FeatureGateType key;
     private final String name;
 
-    public FeatureGate(FeatureGateType key, String name) {
-        this.key = key;
+    public FeatureGate(String name) {
         this.name = name;
-    }
-
-    public FeatureGateType getKey() {
-        return key;
     }
 
     public String getName() {
