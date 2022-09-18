@@ -24,7 +24,7 @@ import static org.mockito.Mockito.when;
 @Testcontainers
 class FlipperIT {
 
-    public static final String DEFAULT_BACKEND_IMAGE = "registry.gitlab.com/taucher2003-group/flipper4j/test-backend:" + System.getenv().getOrDefault("T_TEST_IMAGE_TAG", "latest");
+    public static final String DEFAULT_BACKEND_IMAGE = "registry.gitlab.com/taucher2003-group/flipper4j/test-backend:" + System.getenv().getOrDefault("T_TEST_BACKEND_IMAGE_TAG", "latest");
 
     @SuppressWarnings("resource")
     @Container

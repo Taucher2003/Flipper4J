@@ -58,19 +58,22 @@ build:
 
 test:
   stage: test
+  image: registry.gitlab.com/taucher2003-group/flipper4j/test:$T_TEST_IMAGE_TAG
   services:
     - name: ${PROXY_PREFIX}docker:20.10.17-dind
       alias: docker
   script:
-    - echo "Test will use image with tag ${T_TEST_IMAGE_TAG}"
-    - mvn test verify jacoco:report jacoco:report-aggregate -P no-sign $T_MAVEN_CLI_OPTS
+    - echo "Test will use image with tag ${T_TEST_BACKEND_IMAGE_TAG}"
+    - "[[ \"$TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX\" != \"\" ]] && echo -n $CI_DEPENDENCY_PROXY_PASSWORD | docker login -u $CI_DEPENDENCY_PROXY_USER --password-stdin $CI_DEPENDENCY_PROXY_SERVER"
+    - mvn test verify jacoco:report jacoco:report-aggregate -P no-sign,no-javadoc $T_MAVEN_CLI_OPTS
     - mv coverage/target/site/jacoco-aggregate coverage-report
     - awk -F"," '{ total+=$4+$5; covered+=$5 } END { print "Jacoco instructions covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
     - awk -F"," '{ total+=$6+$7; covered+=$7 } END { print "Jacoco branches covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
     - awk -F"," '{ total+=$8+$9; covered+=$9 } END { print "Jacoco lines covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
   variables:
-    T_TEST_IMAGE_TAG: "latest"
+    T_TEST_BACKEND_IMAGE_TAG: "latest"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: $PROXY_PREFIX
+    DOCKER_HOST: tcp://docker:2375
   coverage: /Jacoco instructions covered (\d+\.?\d*) %/
   artifacts:
     when: always
@@ -192,39 +195,67 @@ pages:
       - public
     expire_in: 1 day
 
-# Test API Image
+# Test Images
 # -------------------------------------------------------
 
-build-test-image:
+.kaniko:
   stage: build
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [ "" ]
   cache: {}
-  script:
-    - mkdir -p /kaniko/.docker
-    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
-    - >-
-      /kaniko/executor
-      --context "${CI_PROJECT_DIR}/test-backend"
-      --dockerfile "${CI_PROJECT_DIR}/test-backend/Dockerfile"
-      --destination "${CI_REGISTRY_IMAGE}/test-backend:${T_TEST_IMAGE_TAG}"
-    - echo "T_TEST_IMAGE_TAG=${T_TEST_IMAGE_TAG}" > dotenv
   artifacts:
     reports:
       dotenv:
         - dotenv
+  before_script:
+    - mkdir -p /kaniko/.docker
+    - echo "{\"auths\":{\"${CI_REGISTRY}\":{\"auth\":\"$(printf "%s:%s" "${CI_REGISTRY_USER}" "${CI_REGISTRY_PASSWORD}" | base64 | tr -d '\n')\"}}}" > /kaniko/.docker/config.json
+
+
+build-test-image:
+  extends:
+    - .kaniko
+  script:
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}"
+      --dockerfile "${CI_PROJECT_DIR}/test.Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/test:${T_TEST_IMAGE_TAG}"
+    - echo "T_TEST_IMAGE_TAG=${T_TEST_IMAGE_TAG}" > dotenv
+  rules:
+    - if: $CI_MERGE_REQUEST_ID
+      changes:
+        - test.Dockerfile
+      variables:
+        T_TEST_IMAGE_TAG: $CI_COMMIT_SHA
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+        - test.Dockerfile
+      variables:
+        T_TEST_IMAGE_TAG: latest
+
+build-test-backend-image:
+  extends:
+    - .kaniko
+  script:
+    - >-
+      /kaniko/executor
+      --context "${CI_PROJECT_DIR}/test-backend"
+      --dockerfile "${CI_PROJECT_DIR}/test-backend/Dockerfile"
+      --destination "${CI_REGISTRY_IMAGE}/test-backend:${T_TEST_BACKEND_IMAGE_TAG}"
+    - echo "T_TEST_BACKEND_IMAGE_TAG=${T_TEST_BACKEND_IMAGE_TAG}" > dotenv
   rules:
     - if: $CI_MERGE_REQUEST_ID
       changes:
         - test-backend/*
       variables:
-        T_TEST_IMAGE_TAG: $CI_COMMIT_SHA
+        T_TEST_BACKEND_IMAGE_TAG: $CI_COMMIT_SHA
     - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
       changes:
         - test-backend/*
       variables:
-        T_TEST_IMAGE_TAG: latest
+        T_TEST_BACKEND_IMAGE_TAG: latest
 
 # Template Job Configurations
 # -------------------------------------------------------
