@@ -38,18 +38,18 @@ class PercentageOfTimeTest {
         try(var mockStatic = mockStatic(ThreadLocalRandom.class)) {
             var random = mock(ThreadLocalRandom.class);
 
-            var lastMock = when(random.nextInt(anyInt()));
+            var stub = when(random.nextInt(anyInt()));
             for(var i = 0; i<100; i++) {
-                lastMock = lastMock.thenReturn(i);
+                stub = stub.thenReturn(i);
             }
 
             when(ThreadLocalRandom.current()).thenReturn(random);
 
-            for(var i = 0; i<=percent; i++) {
-                assertThat(gate.isEnabled(context)).isTrue();
+            for(var i = 0; i<percent; i++) {
+                assertThat(gate.isEnabled(context)).as(String.format("Gate is enabled for %s percent", i)).isTrue();
             }
-            for(var i = percent + 1; i<=100; i++) {
-                assertThat(gate.isEnabled(context)).isFalse();
+            for(var i = percent; i<100; i++) {
+                assertThat(gate.isEnabled(context)).as(String.format("Gate is disabled for %s percent", i)).isFalse();
             }
         }
     }

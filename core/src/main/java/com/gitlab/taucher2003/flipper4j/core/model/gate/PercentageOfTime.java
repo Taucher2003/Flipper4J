@@ -18,6 +18,6 @@ public class PercentageOfTime extends FeatureGate {
 
     @Override
     public boolean isEnabled(EvaluationContext context) {
-        return ThreadLocalRandom.current().nextInt(101) <= value;
+        return ThreadLocalRandom.current().nextInt(100) < value;
     }
 }

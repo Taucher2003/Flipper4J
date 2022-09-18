@@ -4,7 +4,11 @@ import com.gitlab.taucher2003.flipper4j.core.config.FlipperConfiguration;
 import com.gitlab.taucher2003.flipper4j.core.config.FlipperConfigurator;
 import com.gitlab.taucher2003.flipper4j.core.http.Reader;
 import com.gitlab.taucher2003.flipper4j.core.http.Writer;
+import com.gitlab.taucher2003.flipper4j.core.model.Feature;
 import com.gitlab.taucher2003.flipper4j.core.model.FlipperIdentifier;
+
+import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 public final class Flipper {
 
@@ -28,12 +32,26 @@ public final class Flipper {
         }
     }
 
+    public void awaitReady(int duration, TimeUnit timeUnit) {
+        var waitingStart = System.currentTimeMillis();
+        while(
+                !registry.isReady()
+                && System.currentTimeMillis() - waitingStart < timeUnit.toMillis(duration)
+        ) {
+            Thread.onSpinWait();
+        }
+    }
+
     public boolean isEnabled(String feature) {
         return isEnabled(feature, null);
     }
 
     public boolean isEnabled(String feature, FlipperIdentifier identifier) {
         return registry.getFeature(feature).map(f -> f.isEnabled(identifier)).orElse(false);
+    }
+
+    public Optional<Feature> getFeature(String feature) {
+        return registry.getFeature(feature);
     }
 
     public FlipperAdmin admin() {

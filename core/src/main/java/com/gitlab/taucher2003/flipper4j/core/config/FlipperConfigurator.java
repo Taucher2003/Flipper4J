@@ -3,6 +3,7 @@ package com.gitlab.taucher2003.flipper4j.core.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.gitlab.taucher2003.flipper4j.core.Flipper;
 
+import java.net.URI;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
@@ -40,6 +41,7 @@ public class FlipperConfigurator {
     }
 
     public FlipperConfigurator setBaseUrl(String baseUrl) {
+        URI.create(baseUrl); // only validate
         this.baseUrl = baseUrl;
         return this;
     }

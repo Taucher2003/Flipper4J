@@ -58,21 +58,26 @@ build:
 
 test:
   stage: test
+  services:
+    - name: ${PROXY_PREFIX}docker:20.10.17-dind
+      alias: docker
   script:
     - echo "Test will use image with tag ${T_TEST_IMAGE_TAG}"
-    - mvn test jacoco:report jacoco:report-aggregate $T_MAVEN_CLI_OPTS
+    - mvn test verify jacoco:report jacoco:report-aggregate -P no-sign $T_MAVEN_CLI_OPTS
     - mv coverage/target/site/jacoco-aggregate coverage-report
     - awk -F"," '{ total+=$4+$5; covered+=$5 } END { print "Jacoco instructions covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
     - awk -F"," '{ total+=$6+$7; covered+=$7 } END { print "Jacoco branches covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
     - awk -F"," '{ total+=$8+$9; covered+=$9 } END { print "Jacoco lines covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
   variables:
     T_TEST_IMAGE_TAG: "latest"
+    TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: $PROXY_PREFIX
   coverage: /Jacoco instructions covered (\d+\.?\d*) %/
   artifacts:
     when: always
     reports:
       junit:
         - '**/target/surefire-reports/TEST-*.xml'
+        - '**/target/failsafe-reports/TEST-*.xml'
     paths:
       - 'coverage-report'
 
