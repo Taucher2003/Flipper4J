@@ -71,6 +71,7 @@ test:
     - awk -F"," '{ total+=$6+$7; covered+=$7 } END { print "Jacoco branches covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
     - awk -F"," '{ total+=$8+$9; covered+=$9 } END { print "Jacoco lines covered", 100*covered/total, "%" }' coverage-report/jacoco.csv
   variables:
+    T_TEST_IMAGE_TAG: "latest"
     T_TEST_BACKEND_IMAGE_TAG: "latest"
     TESTCONTAINERS_HUB_IMAGE_NAME_PREFIX: $PROXY_PREFIX
     DOCKER_HOST: tcp://docker:2375
