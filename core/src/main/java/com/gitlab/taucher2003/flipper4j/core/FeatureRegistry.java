@@ -3,6 +3,7 @@ package com.gitlab.taucher2003.flipper4j.core;
 import com.gitlab.taucher2003.flipper4j.core.model.Feature;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Function;
@@ -22,5 +23,9 @@ public class FeatureRegistry {
 
     public boolean isReady() {
         return features != null;
+    }
+
+    public Map<String, Feature> getFeatures() {
+        return Collections.unmodifiableMap(features);
     }
 }

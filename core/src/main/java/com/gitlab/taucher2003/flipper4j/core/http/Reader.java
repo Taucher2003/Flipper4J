@@ -48,6 +48,8 @@ public class Reader {
         } catch (InterruptedException e) {
             LOGGER.error("Retrieving Thread has been interrupted", e);
             Thread.currentThread().interrupt();
+        } catch (Throwable e) {
+            LOGGER.error("Unexpected Throwable while retrieving features", e);
         }
     }
 
