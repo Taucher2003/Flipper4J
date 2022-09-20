@@ -27,9 +27,9 @@ public class FlipperHttpIT extends FlipperIT {
 
     @Override
     protected Flipper createFlipper(boolean shouldWork) {
-        var adapter = new FlipperConfigurator()
+        return new FlipperConfigurator()
                 .setBaseUrl("http://" + flipperApi.getHost() + ":" + (flipperApi.getFirstMappedPort() + (shouldWork ? 0 : 1)))
-                .build();
-        return flipper = Flipper.create(adapter);
+                .build()
+                .createFlipper();
     }
 }
