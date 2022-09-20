@@ -25,12 +25,5 @@
             <artifactId>core</artifactId>
             <version>${flipper4j.version}</version>
         </dependency>
-        <dependency>
-            <groupId>com.gitlab.taucher2003.flipper4j</groupId>
-            <artifactId>core</artifactId>
-            <version>${flipper4j.version}</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 </project>
