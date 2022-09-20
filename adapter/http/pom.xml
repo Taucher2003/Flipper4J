@@ -3,15 +3,15 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <parent>
-        <artifactId>flipper4j</artifactId>
-        <groupId>com.gitlab.taucher2003</groupId>
+        <artifactId>adapter</artifactId>
+        <groupId>com.gitlab.taucher2003.flipper4j</groupId>
         <version>${flipper4j.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.gitlab.taucher2003.flipper4j</groupId>
-    <artifactId>core</artifactId>
+    <groupId>com.gitlab.taucher2003.flipper4j.adapter</groupId>
+    <artifactId>http</artifactId>
 
-    <name>Flipper4J › Core</name>
-    <description>Core Flipper4J implementation</description>
+    <name>Flipper4J › Adapter › HTTP</name>
+    <description>HTTP Adapter for Flipper4J | For use with Flipper::Api</description>
 </project>

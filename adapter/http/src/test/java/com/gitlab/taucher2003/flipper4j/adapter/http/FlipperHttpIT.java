@@ -1,5 +1,7 @@
-package com.gitlab.taucher2003.flipper4j.core;
+package com.gitlab.taucher2003.flipper4j.adapter.http;
 
+import com.gitlab.taucher2003.flipper4j.adapter.http.config.FlipperConfigurator;
+import com.gitlab.taucher2003.flipper4j.core.Flipper;
 import com.gitlab.taucher2003.flipper4j.core.model.FlipperIdentifier;
 import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.AfterEach;
@@ -22,7 +24,7 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @Testcontainers
-class FlipperIT {
+class FlipperHttpIT {
 
     public static final String DEFAULT_BACKEND_IMAGE = "registry.gitlab.com/taucher2003-group/flipper4j/test-backend:" + System.getenv().getOrDefault("T_TEST_BACKEND_IMAGE_TAG", "latest");
 
@@ -41,9 +43,10 @@ class FlipperIT {
 
     @BeforeEach
     void setUp() {
-        flipper = Flipper.configure()
+        var adapter = new FlipperConfigurator()
                 .setBaseUrl("http://" + flipperApi.getHost() + ":" + flipperApi.getFirstMappedPort())
                 .build();
+        flipper = Flipper.create(adapter);
         flipper.awaitReady(5, TimeUnit.SECONDS);
     }
 
@@ -54,9 +57,10 @@ class FlipperIT {
 
     @Test
     void awaitReady() {
-        var flipper = Flipper.configure()
+        var adapter = new FlipperConfigurator()
                 .setBaseUrl("http://" + flipperApi.getHost() + ":" + (flipperApi.getFirstMappedPort() + 1))
                 .build();
+        var flipper = Flipper.create(adapter);
         var waitStart = System.currentTimeMillis();
         flipper.awaitReady(1, TimeUnit.SECONDS);
         var waitEnd = System.currentTimeMillis();

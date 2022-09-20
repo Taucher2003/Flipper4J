@@ -21,6 +21,11 @@
             <artifactId>core</artifactId>
             <version>${flipper4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.gitlab.taucher2003.flipper4j.adapter</groupId>
+            <artifactId>http</artifactId>
+            <version>${flipper4j.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

@@ -1,9 +1,7 @@
 package com.gitlab.taucher2003.flipper4j.core;
 
-import com.gitlab.taucher2003.flipper4j.core.config.FlipperConfiguration;
-import com.gitlab.taucher2003.flipper4j.core.config.FlipperConfigurator;
-import com.gitlab.taucher2003.flipper4j.core.http.Reader;
-import com.gitlab.taucher2003.flipper4j.core.http.Writer;
+import com.gitlab.taucher2003.flipper4j.core.adapter.FlipperAdapter;
+import com.gitlab.taucher2003.flipper4j.core.adapter.FlipperAdmin;
 import com.gitlab.taucher2003.flipper4j.core.model.Feature;
 import com.gitlab.taucher2003.flipper4j.core.model.FlipperIdentifier;
 
@@ -12,18 +10,16 @@ import java.util.concurrent.TimeUnit;
 
 public final class Flipper {
 
-    private final Reader reader;
+    private final FlipperAdapter adapter;
     private final FeatureRegistry registry;
-    private final FlipperAdmin admin;
 
-    private Flipper(Reader reader, FeatureRegistry registry, FlipperAdmin admin) {
-        this.reader = reader;
+    private Flipper(FlipperAdapter adapter, FeatureRegistry registry) {
+        this.adapter = adapter;
         this.registry = registry;
-        this.admin = admin;
     }
 
     public void shutdown() {
-        reader.cancel();
+        adapter.shutdown();
     }
 
     public void awaitReady() {
@@ -55,20 +51,14 @@ public final class Flipper {
     }
 
     public FlipperAdmin admin() {
-        return admin;
+        return adapter.admin();
     }
 
-    public static Flipper create(FlipperConfiguration configuration) {
+    public static Flipper create(FlipperAdapter adapter) {
         var registry = new FeatureRegistry();
-        var reader = new Reader(configuration, registry);
-        var writer = new Writer(configuration, reader);
-        var admin = new FlipperAdmin(configuration, writer);
-        var flipper = new Flipper(reader, registry, admin);
-        reader.schedule(configuration.getFetchInterval(), configuration.getFetchIntervalUnit());
+        adapter.setup(registry);
+        var flipper = new Flipper(adapter, registry);
+        adapter.start();
         return flipper;
-    }
-
-    public static FlipperConfigurator configure() {
-        return new FlipperConfigurator();
     }
 }

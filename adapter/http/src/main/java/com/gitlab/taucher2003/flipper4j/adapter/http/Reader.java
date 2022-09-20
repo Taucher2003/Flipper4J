@@ -1,7 +1,7 @@
-package com.gitlab.taucher2003.flipper4j.core.http;
+package com.gitlab.taucher2003.flipper4j.adapter.http;
 
+import com.gitlab.taucher2003.flipper4j.adapter.http.config.FlipperConfiguration;
 import com.gitlab.taucher2003.flipper4j.core.FeatureRegistry;
-import com.gitlab.taucher2003.flipper4j.core.config.FlipperConfiguration;
 import com.gitlab.taucher2003.flipper4j.core.model.Feature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
