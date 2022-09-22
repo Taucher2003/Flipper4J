@@ -1,4 +1,4 @@
-package com.gitlab.taucher2003.flipper4j.core.config;
+package com.gitlab.taucher2003.flipper4j.adapter.http.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 

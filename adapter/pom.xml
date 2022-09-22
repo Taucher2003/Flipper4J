@@ -8,10 +8,22 @@
         <version>${flipper4j.version}</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
+    <packaging>pom</packaging>
+    <modules>
+        <module>http</module>
+    </modules>
 
     <groupId>com.gitlab.taucher2003.flipper4j</groupId>
-    <artifactId>core</artifactId>
+    <artifactId>adapter</artifactId>
 
-    <name>Flipper4J › Core</name>
-    <description>Core Flipper4J implementation</description>
+    <name>Flipper4J › Adapter</name>
+    <description>Flipper4J Adapter Parent</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.gitlab.taucher2003.flipper4j</groupId>
+            <artifactId>core</artifactId>
+            <version>${flipper4j.version}</version>
+        </dependency>
+    </dependencies>
 </project>

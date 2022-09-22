@@ -1,7 +1,7 @@
-package com.gitlab.taucher2003.flipper4j.core.config;
+package com.gitlab.taucher2003.flipper4j.adapter.http.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.gitlab.taucher2003.flipper4j.core.Flipper;
+import com.gitlab.taucher2003.flipper4j.adapter.http.FlipperHttpAdapter;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -51,7 +51,7 @@ public class FlipperConfigurator {
         return this;
     }
 
-    public Flipper build() {
+    public FlipperHttpAdapter build() {
         if(baseUrl == null) {
             throw new IllegalArgumentException("Configuration can't be built without base url");
         }
@@ -67,6 +67,6 @@ public class FlipperConfigurator {
                 httpClient.build()
         );
 
-        return Flipper.create(config);
+        return new FlipperHttpAdapter(config);
     }
 }

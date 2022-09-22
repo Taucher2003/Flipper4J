@@ -5,13 +5,8 @@ import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.testcontainers.containers.GenericContainer;
-import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.utility.DockerImageName;
 
-import java.time.Duration;
-import java.time.temporal.ChronoUnit;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -22,28 +17,19 @@ import static org.mockito.Mockito.mockStatic;
 import static org.mockito.Mockito.when;
 
 @Testcontainers
-class FlipperIT {
-
-    public static final String DEFAULT_BACKEND_IMAGE = "registry.gitlab.com/taucher2003-group/flipper4j/test-backend:" + System.getenv().getOrDefault("T_TEST_BACKEND_IMAGE_TAG", "latest");
-
-    @SuppressWarnings("resource")
-    @Container
-    public GenericContainer<?> flipperApi = new GenericContainer<>(
-            DockerImageName.parse(
-                    System.getenv().getOrDefault("T_BACKEND_IMAGE", DEFAULT_BACKEND_IMAGE)
-            )
-    )
-            .withExposedPorts(9292)
-            .withStartupTimeout(Duration.of(500, ChronoUnit.SECONDS))
-            .withStartupAttempts(3);
+public abstract class FlipperIT {
 
     public Flipper flipper;
 
+    protected Flipper createFlipper() {
+        return createFlipper(true);
+    }
+
+    protected abstract Flipper createFlipper(boolean shouldWork);
+
     @BeforeEach
     void setUp() {
-        flipper = Flipper.configure()
-                .setBaseUrl("http://" + flipperApi.getHost() + ":" + flipperApi.getFirstMappedPort())
-                .build();
+        flipper = createFlipper();
         flipper.awaitReady(5, TimeUnit.SECONDS);
     }
 
@@ -54,9 +40,7 @@ class FlipperIT {
 
     @Test
     void awaitReady() {
-        var flipper = Flipper.configure()
-                .setBaseUrl("http://" + flipperApi.getHost() + ":" + (flipperApi.getFirstMappedPort() + 1))
-                .build();
+        var flipper = createFlipper(false);
         var waitStart = System.currentTimeMillis();
         flipper.awaitReady(1, TimeUnit.SECONDS);
         var waitEnd = System.currentTimeMillis();

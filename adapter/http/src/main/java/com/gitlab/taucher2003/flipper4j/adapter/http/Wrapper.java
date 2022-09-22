@@ -1,4 +1,4 @@
-package com.gitlab.taucher2003.flipper4j.core.http;
+package com.gitlab.taucher2003.flipper4j.adapter.http;
 
 import java.util.List;
 

@@ -1,6 +1,6 @@
-package com.gitlab.taucher2003.flipper4j.core.http;
+package com.gitlab.taucher2003.flipper4j.adapter.http;
 
-import com.gitlab.taucher2003.flipper4j.core.config.FlipperConfiguration;
+import com.gitlab.taucher2003.flipper4j.adapter.http.config.FlipperConfiguration;
 
 import java.net.URI;
 import java.net.http.HttpRequest;
