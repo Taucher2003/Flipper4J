@@ -15,7 +15,7 @@ class ActorsTest {
 
     @Test
     void withoutActorDisabled() {
-        var gate = new Actors("actors", List.of("actor:1"));
+        var gate = new Actors(List.of("actor:1"));
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn(null);
@@ -25,7 +25,7 @@ class ActorsTest {
 
     @Test
     void withoutActorsDisabled() {
-        var gate = new Actors("actors", Collections.emptyList());
+        var gate = new Actors(Collections.emptyList());
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:1");
@@ -35,7 +35,7 @@ class ActorsTest {
 
     @Test
     void withActorDisabled() {
-        var gate = new Actors("actors", List.of("actor:1"));
+        var gate = new Actors(List.of("actor:1"));
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:2");
@@ -45,7 +45,7 @@ class ActorsTest {
 
     @Test
     void withActorEnabled() {
-        var gate = new Actors("actors", List.of("actor:1"));
+        var gate = new Actors(List.of("actor:1"));
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:1");

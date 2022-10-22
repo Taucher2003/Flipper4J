@@ -5,6 +5,7 @@ import org.assertj.core.data.Offset;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -39,7 +40,18 @@ public abstract class FlipperIT {
     }
 
     @Test
+    @Timeout(5)
     void awaitReady() {
+        var flipper = createFlipper();
+        flipper.awaitReady();
+
+        assertThat(flipper.isReady()).isTrue();
+
+        flipper.shutdown();
+    }
+
+    @Test
+    void awaitReadyWithTimeout() {
         var flipper = createFlipper(false);
         var waitStart = System.currentTimeMillis();
         flipper.awaitReady(1, TimeUnit.SECONDS);
@@ -107,6 +119,15 @@ public abstract class FlipperIT {
     }
 
     @Test
+    void booleanEnabledFlagDisabling() {
+        booleanEnabledFlagWithoutActor();
+        flipper.admin().disableFeatureBoolean("test_flag").join();
+
+        assertThat(flipper.getFeature("test_flag")).isPresent();
+        assertThat(flipper.isEnabled("test_flag")).isFalse();
+    }
+
+    @Test
     void actorEnabledFlagWithoutActor() {
         FlipperIdentifier actor = () -> "actor";
 
@@ -129,6 +150,16 @@ public abstract class FlipperIT {
     }
 
     @Test
+    void actorEnabledFlagDisabling() {
+        FlipperIdentifier actor = () -> "actor";
+        actorEnabledFlagWithActor();
+        flipper.admin().disableFeatureActor("test_flag", actor).join();
+
+        assertThat(flipper.getFeature("test_flag")).isPresent();
+        assertThat(flipper.isEnabled("test_flag", actor)).isFalse();
+    }
+
+    @Test
     void percentageActorEnabledWithActor() {
         FlipperIdentifier actor = () -> "actor:5";
 
@@ -137,6 +168,16 @@ public abstract class FlipperIT {
 
         assertThat(flipper.getFeature("feature")).isPresent();
         assertThat(flipper.isEnabled("feature", actor)).isTrue();
+    }
+
+    @Test
+    void percentageActorEnabledDisabling() {
+        FlipperIdentifier actor = () -> "actor:5";
+        percentageActorEnabledWithActor();
+        flipper.admin().disableFeatureActorPercentage("feature").join();
+
+        assertThat(flipper.getFeature("feature")).isPresent();
+        assertThat(flipper.isEnabled("feature", actor)).isFalse();
     }
 
     @Test
@@ -166,5 +207,14 @@ public abstract class FlipperIT {
             assertThat(flipper.isEnabled("test_flag")).isTrue();
             assertThat(flipper.isEnabled("test_flag")).isFalse();
         }
+    }
+
+    @Test
+    void percentageTimeEnabledDisabling() {
+        percentageTimeEnabled();
+        flipper.admin().disableFeatureTimePercentage("test_flag").join();
+
+        assertThat(flipper.getFeature("test_flag")).isPresent();
+        assertThat(flipper.isEnabled("test_flag")).isFalse();
     }
 }

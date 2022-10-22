@@ -17,14 +17,14 @@ class PercentageOfTimeTest {
 
     @Test
     void disabled() {
-        var gate = new PercentageOfTime("percentage_of_time", 0);
+        var gate = new PercentageOfTime(0);
 
         assertThat(gate.isEnabled(context)).isFalse();
     }
 
     @Test
     void enabled() {
-        var gate = new PercentageOfTime("percentage_of_time", 100);
+        var gate = new PercentageOfTime(100);
 
         assertThat(gate.isEnabled(context)).isTrue();
     }
@@ -33,7 +33,7 @@ class PercentageOfTimeTest {
     void partial() {
         var percent = 50;
 
-        var gate = new PercentageOfTime("percentage_of_time", percent);
+        var gate = new PercentageOfTime(percent);
 
         try(var mockStatic = mockStatic(ThreadLocalRandom.class)) {
             var random = mock(ThreadLocalRandom.class);

@@ -51,22 +51,25 @@ public class FlipperConfigurator {
         return this;
     }
 
-    public FlipperHttpAdapter build() {
-        if(baseUrl == null) {
+    // visible for testing
+    FlipperConfiguration buildConfiguration() {
+        if (baseUrl == null) {
             throw new IllegalArgumentException("Configuration can't be built without base url");
         }
-        if(objectMapper == null) {
+        if (objectMapper == null) {
             objectMapper = new ObjectMapper();
         }
 
-        var config = new FlipperConfiguration(
+        return new FlipperConfiguration(
                 fetchInterval,
                 fetchIntervalUnit,
                 objectMapper,
                 baseUrl,
                 httpClient.build()
         );
+    }
 
-        return new FlipperHttpAdapter(config);
+    public FlipperHttpAdapter build() {
+        return new FlipperHttpAdapter(buildConfiguration());
     }
 }

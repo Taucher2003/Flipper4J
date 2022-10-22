@@ -32,7 +32,7 @@ class FeatureTest {
         var percentageOfTimeGate = mock(PercentageOfTime.class);
         when(percentageOfTimeGate.isEnabled(any())).thenReturn(false);
 
-        var feature = new Feature("key", FeatureState.OFF, List.of(booleanGate, actorsGate, percentageOfActorsGate, percentageOfTimeGate));
+        var feature = new Feature("key", List.of(booleanGate, actorsGate, percentageOfActorsGate, percentageOfTimeGate));
         FlipperIdentifier identifier = () -> "actor:1";
 
         assertThat(feature.isEnabled(identifier)).isFalse();
@@ -56,7 +56,7 @@ class FeatureTest {
         var percentageOfActorsGate = mock(PercentageOfActors.class);
         var percentageOfTimeGate = mock(PercentageOfTime.class);
 
-        var feature = new Feature("key", FeatureState.OFF, List.of(booleanGate, actorsGate, percentageOfActorsGate, percentageOfTimeGate));
+        var feature = new Feature("key", List.of(booleanGate, actorsGate, percentageOfActorsGate, percentageOfTimeGate));
         FlipperIdentifier identifier = () -> "actor:1";
 
         assertThat(feature.isEnabled(identifier)).isTrue();
@@ -76,7 +76,7 @@ class FeatureTest {
         var booleanGate = mock(Boolean.class);
         when(booleanGate.isEnabled(any())).thenReturn(false);
 
-        var feature = new Feature("key", FeatureState.OFF, List.of(booleanGate));
+        var feature = new Feature("key", List.of(booleanGate));
         assertThat(feature.isEnabled(null)).isFalse();
 
         var captor = ArgumentCaptor.forClass(EvaluationContext.class);

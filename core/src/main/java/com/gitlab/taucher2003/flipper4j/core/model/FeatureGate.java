@@ -7,6 +7,7 @@ import com.gitlab.taucher2003.flipper4j.core.model.gate.PercentageOfActors;
 import com.gitlab.taucher2003.flipper4j.core.model.gate.PercentageOfTime;
 import com.gitlab.taucher2003.flipper4j.core.model.gate.Unsupported;
 
+@FunctionalInterface
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "key", defaultImpl = Unsupported.class)
 @JsonSubTypes({
         @JsonSubTypes.Type(value = com.gitlab.taucher2003.flipper4j.core.model.gate.Boolean.class, name = "boolean"),
@@ -14,16 +15,7 @@ import com.gitlab.taucher2003.flipper4j.core.model.gate.Unsupported;
         @JsonSubTypes.Type(value = PercentageOfActors.class, name = "percentage_of_actors"),
         @JsonSubTypes.Type(value = PercentageOfTime.class, name = "percentage_of_time")
 })
-public abstract class FeatureGate {
-    private final String name;
+public interface FeatureGate {
 
-    public FeatureGate(String name) {
-        this.name = name;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public abstract boolean isEnabled(EvaluationContext context);
+    boolean isEnabled(EvaluationContext context);
 }
