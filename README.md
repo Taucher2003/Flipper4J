@@ -149,3 +149,8 @@ This gate evaluates to `true` for the given percent of method calls. The evaluat
 each actor and can lead to poor user experience if a feature is not constantly available or not available.
 
 When no actor is used, the gate still evaluates tha random value and can evaluate to `true`.
+
+### Toggle Modification
+
+Administrative methods to change the state of toggles are exposed within the `FlipperAdmin`.
+An instance of the `FlipperAdmin` can be retrieved with the `admin()` method on the `Flipper` instance.
