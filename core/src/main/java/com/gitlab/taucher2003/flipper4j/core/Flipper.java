@@ -38,6 +38,10 @@ public final class Flipper {
         }
     }
 
+    public boolean isReady() {
+        return registry.isReady();
+    }
+
     public boolean isEnabled(String feature) {
         return isEnabled(feature, null);
     }

@@ -11,7 +11,7 @@ class PercentageOfActorsTest {
 
     @Test
     void withoutActorDisabled() {
-        var gate = new PercentageOfActors("percentage_of_actors", 0);
+        var gate = new PercentageOfActors(0);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn(null);
@@ -21,7 +21,7 @@ class PercentageOfActorsTest {
 
     @Test
     void withoutActorPartial() {
-        var gate = new PercentageOfActors("percentage_of_actors", 99);
+        var gate = new PercentageOfActors(99);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn(null);
@@ -31,7 +31,7 @@ class PercentageOfActorsTest {
 
     @Test
     void withoutActorEnabled() {
-        var gate = new PercentageOfActors("percentage_of_actors", 100);
+        var gate = new PercentageOfActors(100);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn(null);
@@ -41,7 +41,7 @@ class PercentageOfActorsTest {
 
     @Test
     void withActorDisabled() {
-        var gate = new PercentageOfActors("percentage_of_actors", 0);
+        var gate = new PercentageOfActors(0);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:1");
@@ -52,7 +52,7 @@ class PercentageOfActorsTest {
 
     @Test
     void withActorPartialEnabled() {
-        var gate = new PercentageOfActors("percentage_of_actors", 50);
+        var gate = new PercentageOfActors(50);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:5");
@@ -63,7 +63,7 @@ class PercentageOfActorsTest {
 
     @Test
     void withActorPartialDisabled() {
-        var gate = new PercentageOfActors("percentage_of_actors", 50);
+        var gate = new PercentageOfActors(50);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:4");
@@ -74,7 +74,7 @@ class PercentageOfActorsTest {
 
     @Test
     void withActorEnabled() {
-        var gate = new PercentageOfActors("percentage_of_actors", 100);
+        var gate = new PercentageOfActors(100);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:1");

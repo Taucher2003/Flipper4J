@@ -10,7 +10,7 @@ class UnsupportedTest {
 
     @Test
     void isAlwaysDisabled() {
-        var gate = new Unsupported("name", null);
+        var gate = new Unsupported();
 
         var context = mock(EvaluationContext.class);
 

@@ -11,7 +11,7 @@ class BooleanTest {
 
     @Test
     void withoutActorDisabled() {
-        var gate = new Boolean("boolean", false);
+        var gate = new Boolean(false);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn(null);
@@ -21,7 +21,7 @@ class BooleanTest {
 
     @Test
     void withActorDisabled() {
-        var gate = new Boolean("boolean", false);
+        var gate = new Boolean(false);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:1");
@@ -31,7 +31,7 @@ class BooleanTest {
 
     @Test
     void withoutActorEnabled() {
-        var gate = new Boolean("boolean", true);
+        var gate = new Boolean(true);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn(null);
@@ -41,7 +41,7 @@ class BooleanTest {
 
     @Test
     void withActorEnabled() {
-        var gate = new Boolean("boolean", true);
+        var gate = new Boolean(true);
 
         var context = mock(EvaluationContext.class);
         when(context.flipperId()).thenReturn("actor:1");

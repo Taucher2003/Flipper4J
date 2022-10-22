@@ -1,6 +1,7 @@
 package com.gitlab.taucher2003.flipper4j.core.model.gate;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gitlab.taucher2003.flipper4j.core.model.EvaluationContext;
 import com.gitlab.taucher2003.flipper4j.core.model.FeatureGate;
@@ -8,12 +9,12 @@ import com.gitlab.taucher2003.flipper4j.core.model.FeatureGate;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.CRC32;
 
-public class PercentageOfActors extends FeatureGate {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PercentageOfActors implements FeatureGate {
     private final double value;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public PercentageOfActors(@JsonProperty("name") String name, @JsonProperty("value") double value) {
-        super(name);
+    public PercentageOfActors(@JsonProperty("value") double value) {
         this.value = value;
     }
 

@@ -1,18 +1,19 @@
 package com.gitlab.taucher2003.flipper4j.core.model.gate;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gitlab.taucher2003.flipper4j.core.model.EvaluationContext;
 import com.gitlab.taucher2003.flipper4j.core.model.FeatureGate;
 
 import java.util.concurrent.ThreadLocalRandom;
 
-public class PercentageOfTime extends FeatureGate {
+@JsonIgnoreProperties(ignoreUnknown = true)
+public class PercentageOfTime implements FeatureGate {
     private final double value;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public PercentageOfTime(@JsonProperty("name") String name, @JsonProperty("value") double value) {
-        super(name);
+    public PercentageOfTime(@JsonProperty("value") double value) {
         this.value = value;
     }
 
