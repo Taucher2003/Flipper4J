@@ -5,6 +5,7 @@ import com.gitlab.taucher2003.flipper4j.core.adapter.FlipperAdmin;
 import com.gitlab.taucher2003.flipper4j.core.model.Feature;
 import com.gitlab.taucher2003.flipper4j.core.model.FlipperIdentifier;
 
+import java.util.Collection;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
@@ -52,6 +53,14 @@ public final class Flipper {
 
     public Optional<Feature> getFeature(String feature) {
         return registry.getFeature(feature);
+    }
+
+    public Collection<String> getFeatureNames() {
+        return registry.getFeatures().keySet();
+    }
+
+    public void reload() {
+        adapter.reload();
     }
 
     public FlipperAdmin admin() {

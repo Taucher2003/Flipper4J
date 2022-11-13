@@ -34,6 +34,11 @@ public class FlipperHttpAdapter implements FlipperAdapter {
     }
 
     @Override
+    public void reload() {
+        reader.updateLocalState();
+    }
+
+    @Override
     public FlipperAdmin admin() {
         return admin;
     }

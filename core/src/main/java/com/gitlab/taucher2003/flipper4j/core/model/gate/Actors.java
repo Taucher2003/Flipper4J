@@ -6,6 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.gitlab.taucher2003.flipper4j.core.model.EvaluationContext;
 import com.gitlab.taucher2003.flipper4j.core.model.FeatureGate;
 
+import java.util.Arrays;
 import java.util.List;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -15,6 +16,10 @@ public class Actors implements FeatureGate {
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public Actors(@JsonProperty("value") List<String> value) {
         this.value = value;
+    }
+
+    public Actors(String... values) {
+        this(Arrays.asList(values));
     }
 
     @Override
