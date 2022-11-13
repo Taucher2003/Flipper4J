@@ -22,11 +22,9 @@ public abstract class FlipperIT {
 
     public Flipper flipper;
 
-    protected Flipper createFlipper() {
-        return createFlipper(true);
-    }
+    protected abstract Flipper createFlipper();
 
-    protected abstract Flipper createFlipper(boolean shouldWork);
+    protected abstract Flipper createBrokenFlipper();
 
     @BeforeEach
     void setUp() {
@@ -36,6 +34,7 @@ public abstract class FlipperIT {
 
     @AfterEach
     void tearDown() {
+        flipper.getFeatureNames().forEach(flipper.admin()::deleteFeature);
         flipper.shutdown();
     }
 
@@ -52,7 +51,11 @@ public abstract class FlipperIT {
 
     @Test
     void awaitReadyWithTimeout() {
-        var flipper = createFlipper(false);
+        var flipper = createBrokenFlipper();
+        if(flipper == null) {
+            return;
+        }
+
         var waitStart = System.currentTimeMillis();
         flipper.awaitReady(1, TimeUnit.SECONDS);
         var waitEnd = System.currentTimeMillis();

@@ -61,6 +61,7 @@ implementation("com.gitlab.taucher2003.flipper4j.adapter", /* Your required adap
 | ArtifactId | Use Case                                                               |
 |------------|------------------------------------------------------------------------|
 | http       | For use with `Flipper::Api`, connects to a remote HTTP Flipper Backend |
+| property   | Uses System properties to determine status of feature toggles          |
 
 The adapter pulls in the Flipper4J Core, the dependency does not need to be added manually.
 
@@ -154,3 +155,28 @@ When no actor is used, the gate still evaluates tha random value and can evaluat
 
 Administrative methods to change the state of toggles are exposed within the `FlipperAdmin`.
 An instance of the `FlipperAdmin` can be retrieved with the `admin()` method on the `Flipper` instance.
+
+### Adapter specifics
+
+#### properties Adapter
+
+The properties adapter expects feature gate properties in the format `<prefix>.<toggle_name>.<gate_name>`.
+The prefix is set in the `FlipperConfigurator` with the `setPropertyPrefix()` method.
+
+`toggle_name` corresponds to the name of the flag you are checking.
+
+`gate_name` can be one of:
+
+- `boolean`
+- `actors`
+- `percentage_of_actors`
+- `percentage_of_time`
+
+The values for the different gates are in different formats:
+
+| Flag                   | Value format                                                                                                 |
+|------------------------|--------------------------------------------------------------------------------------------------------------|
+| `boolean`              | String `true` if the gate is enabled                                                                         |
+| `actors`               | String containing all actors for which the gate is enabled<br/>By default, the actors are separated with `,` |
+| `percentage_of_actors` | String representing a valid double value between 0 and 100                                                   |
+| `percentage_of_time`   | String representing a valid double value between 0 and 100                                                   |

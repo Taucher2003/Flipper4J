@@ -22,13 +22,21 @@ public class FlipperHttpIT extends FlipperIT {
             )
     )
             .withExposedPorts(9292)
-            .withStartupTimeout(Duration.of(500, ChronoUnit.SECONDS))
+            .withStartupTimeout(Duration.of(1, ChronoUnit.SECONDS))
             .withStartupAttempts(3);
 
     @Override
-    protected Flipper createFlipper(boolean shouldWork) {
+    protected Flipper createFlipper() {
         return new FlipperConfigurator()
-                .setBaseUrl("http://" + flipperApi.getHost() + ":" + (flipperApi.getFirstMappedPort() + (shouldWork ? 0 : 1)))
+                .setBaseUrl("http://" + flipperApi.getHost() + ":" + flipperApi.getFirstMappedPort())
+                .build()
+                .createFlipper();
+    }
+
+    @Override
+    protected Flipper createBrokenFlipper() {
+        return new FlipperConfigurator()
+                .setBaseUrl("http://" + flipperApi.getHost() + ":" + flipperApi.getFirstMappedPort() + 1)
                 .build()
                 .createFlipper();
     }

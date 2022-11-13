@@ -26,6 +26,11 @@
             <artifactId>http</artifactId>
             <version>${flipper4j.version}</version>
         </dependency>
+        <dependency>
+            <groupId>com.gitlab.taucher2003.flipper4j.adapter</groupId>
+            <artifactId>property</artifactId>
+            <version>${flipper4j.version}</version>
+        </dependency>
     </dependencies>
 
     <build>

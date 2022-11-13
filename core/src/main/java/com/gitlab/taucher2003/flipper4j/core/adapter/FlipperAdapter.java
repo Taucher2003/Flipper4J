@@ -8,6 +8,7 @@ public interface FlipperAdapter {
     void setup(FeatureRegistry registry);
     void start();
     void shutdown();
+    void reload();
 
     FlipperAdmin admin();
 
